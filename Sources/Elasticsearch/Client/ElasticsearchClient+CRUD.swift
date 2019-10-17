@@ -1,5 +1,15 @@
 import HTTP
 
+
+public struct UpdateQueryParams: Encodable {
+    // Number of retry attempts (only in 'update' commands)
+    public var retryOnConflict: Int?
+
+    enum CodingKeys: String, CodingKey {
+        case retryOnConflict = "retry_on_conflict"
+    }
+}
+
 /**
  CRUD methods.
  */
@@ -87,6 +97,7 @@ extension ElasticsearchClient {
     ///   - routing: Routing information
     ///   - version: Version information
     ///   - docAsUpsert: index doc if it does not exist
+    ///   - retryOnConflict: Retry on document version conflict
     /// - Returns: A Future IndexResponse
     ///
     public func update<T: Encodable>(
@@ -96,13 +107,16 @@ extension ElasticsearchClient {
         type: String = "_doc",
         routing: String? = nil,
         version: Int? = nil,
-        docAsUpsert: Bool = false
+        docAsUpsert: Bool = false,
+        retryOnConflict: Int? = nil
     ) -> Future<IndexResponse>{
         let url = ElasticsearchClient.generateURL(path: "/\(index)/\(type)/\(id)/_update", routing: routing, version: version)
-        let body: Data
+        var body: Data
         do {
             let updateDoc = UpdateDoc(doc: doc, docAsUpsert: docAsUpsert)
+            let queryParams = UpdateQueryParams(retryOnConflict: retryOnConflict)
             body = try self.encoder.encode(updateDoc)
+            body.append(try self.encoder.encode(queryParams))
         } catch {
             return worker.future(error: error)
         }
@@ -116,6 +130,7 @@ extension ElasticsearchClient {
     ///   - type: The document type
     ///   - routing: Routing information
     ///   - version: Version information
+    ///   - retryOnConflict: Retry on document version conflict
     /// - Returns: A Future IndexResponse
     ///
     public func update(
@@ -124,13 +139,16 @@ extension ElasticsearchClient {
         id: String,
         type: String = "_doc",
         routing: String? = nil,
-        version: Int? = nil
+        version: Int? = nil,
+        retryOnConflict: Int? = nil
     ) -> Future<IndexResponse>{
         let url = ElasticsearchClient.generateURL(path: "/\(index)/\(type)/\(id)/_update", routing: routing, version: version)
-        let body: Data
+        var body: Data
         do {
             let updateScript = UpdateScript(script: script)
+            let queryParams = UpdateQueryParams(retryOnConflict: retryOnConflict)
             body = try self.encoder.encode(updateScript)
+            body.append(try self.encoder.encode(queryParams))
         } catch {
             return worker.future(error: error)
         }

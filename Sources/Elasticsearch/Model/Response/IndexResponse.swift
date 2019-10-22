@@ -7,7 +7,6 @@ public struct IndexResponse: Codable {
     public let result :ResultType
     public let seqNo: Int? = nil
     public let primaryTerm: Int? = nil
-    public let retryOnConflict: Int? = nil
 //    public let routing :String?
 
     public struct Shards: Codable {
@@ -34,6 +33,5 @@ public struct IndexResponse: Codable {
         case result
         case seqNo = "_seq_no"
         case primaryTerm = "_primary_term"
-        case retryOnConflict = "retry_on_conflict"
     }
 }

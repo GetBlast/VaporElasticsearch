@@ -1,15 +1,5 @@
 import HTTP
 
-
-public struct UpdateQueryParams: Encodable {
-    // Number of retry attempts (only in 'update' commands)
-    public var retryOnConflict: Int?
-
-    enum CodingKeys: String, CodingKey {
-        case retryOnConflict = "retry_on_conflict"
-    }
-}
-
 /**
  CRUD methods.
  */
@@ -111,12 +101,10 @@ extension ElasticsearchClient {
         retryOnConflict: Int? = nil
     ) -> Future<IndexResponse>{
         let url = ElasticsearchClient.generateURL(path: "/\(index)/\(type)/\(id)/_update", routing: routing, version: version)
-        var body: Data
+        let body: Data
         do {
-            let updateDoc = UpdateDoc(doc: doc, docAsUpsert: docAsUpsert)
-            let queryParams = UpdateQueryParams(retryOnConflict: retryOnConflict)
+            let updateDoc = UpdateDoc(doc: doc, docAsUpsert: docAsUpsert, retryOnConflict: retryOnConflict)
             body = try self.encoder.encode(updateDoc)
-            body.append(try self.encoder.encode(queryParams))
         } catch {
             return worker.future(error: error)
         }
@@ -143,12 +131,10 @@ extension ElasticsearchClient {
         retryOnConflict: Int? = nil
     ) -> Future<IndexResponse>{
         let url = ElasticsearchClient.generateURL(path: "/\(index)/\(type)/\(id)/_update", routing: routing, version: version)
-        var body: Data
+        let body: Data
         do {
-            let updateScript = UpdateScript(script: script)
-            let queryParams = UpdateQueryParams(retryOnConflict: retryOnConflict)
+            let updateScript = UpdateScript(script: script, retryOnConflict: retryOnConflict)
             body = try self.encoder.encode(updateScript)
-            body.append(try self.encoder.encode(queryParams))
         } catch {
             return worker.future(error: error)
         }

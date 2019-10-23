@@ -87,6 +87,7 @@ extension ElasticsearchClient {
     ///   - routing: Routing information
     ///   - version: Version information
     ///   - docAsUpsert: index doc if it does not exist
+    ///   - retryOnConflict: Retry on document version conflict
     /// - Returns: A Future IndexResponse
     ///
     public func update<T: Encodable>(
@@ -96,12 +97,13 @@ extension ElasticsearchClient {
         type: String = "_doc",
         routing: String? = nil,
         version: Int? = nil,
-        docAsUpsert: Bool = false
+        docAsUpsert: Bool = false,
+        retryOnConflict: Int? = nil
     ) -> Future<IndexResponse>{
         let url = ElasticsearchClient.generateURL(path: "/\(index)/\(type)/\(id)/_update", routing: routing, version: version)
         let body: Data
         do {
-            let updateDoc = UpdateDoc(doc: doc, docAsUpsert: docAsUpsert)
+            let updateDoc = UpdateDoc(doc: doc, docAsUpsert: docAsUpsert, retryOnConflict: retryOnConflict)
             body = try self.encoder.encode(updateDoc)
         } catch {
             return worker.future(error: error)
@@ -116,6 +118,7 @@ extension ElasticsearchClient {
     ///   - type: The document type
     ///   - routing: Routing information
     ///   - version: Version information
+    ///   - retryOnConflict: Retry on document version conflict
     /// - Returns: A Future IndexResponse
     ///
     public func update(
@@ -124,12 +127,13 @@ extension ElasticsearchClient {
         id: String,
         type: String = "_doc",
         routing: String? = nil,
-        version: Int? = nil
+        version: Int? = nil,
+        retryOnConflict: Int? = nil
     ) -> Future<IndexResponse>{
         let url = ElasticsearchClient.generateURL(path: "/\(index)/\(type)/\(id)/_update", routing: routing, version: version)
         let body: Data
         do {
-            let updateScript = UpdateScript(script: script)
+            let updateScript = UpdateScript(script: script, retryOnConflict: retryOnConflict)
             body = try self.encoder.encode(updateScript)
         } catch {
             return worker.future(error: error)

@@ -147,7 +147,7 @@ public class ElasticsearchBulk {
         requestBody.append(10)
 
         // Add the document to the request body followed by a newline character (newline -> 10)
-        let updateDoc = UpdateDoc(doc: doc, docAsUpsert: docAsUpsert)
+        let updateDoc = UpdateDoc(doc: doc, docAsUpsert: docAsUpsert, retryOnConflict: retryOnConflict)
         requestBody.append(try encoder.encode(updateDoc))
         requestBody.append(10)
     }

@@ -99,7 +99,7 @@ final class ElasticsearchTests: XCTestCase {
 
                 let script = Script(source: "ctx._source.name = 'maz'")
 
-                response = try es.update(script: script, index: "test", id: fetchedDoc2.id).wait()
+                response = try es.update(script: script, index: "test", id: fetchedDoc2.id, retryOnConflict: 2).wait()
 
 
                 if let fetchedDoc = try es.get(decodeTo: TestModel.self, index: "test", id: fetchedDoc2.id).wait() {

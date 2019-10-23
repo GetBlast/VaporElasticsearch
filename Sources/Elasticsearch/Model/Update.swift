@@ -1,7 +1,7 @@
 public struct UpdateDoc<T: Encodable> : Encodable {
     public let doc: T
     public let docAsUpsert: Bool
-    public var retryOnConflict: Int? = nil
+    public let retryOnConflict: Int?
 
     public enum CodingKeys: String, CodingKey {
         case doc = "doc"
@@ -12,7 +12,7 @@ public struct UpdateDoc<T: Encodable> : Encodable {
 
 public struct UpdateScript : Encodable {
     public let script: Script
-    public var retryOnConflict: Int? = nil
+    public let retryOnConflict: Int?
 
     public enum CodingKeys: String, CodingKey {
         case script = "script"
